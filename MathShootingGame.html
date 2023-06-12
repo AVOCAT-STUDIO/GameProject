@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우주비행</title>
+    <style>
+        body {
+            margin: 0px;
+        }
+
+        #wrapper {
+            background: blueviolet;
+            width: 2100px;
+            height: 1080px;
+            position: relative;
+        }
+
+        #side {
+            /*background: yellow;*/
+            width: 500px;
+            height: 1080px;
+            position: absolute;
+            font-size: 150px;
+        }
+
+        #side button {
+            width: 80%;
+            height: 150px;
+            border-radius: 20%;
+            background: pink;
+            font-size: 50px;
+            margin-top: 820px;
+            margin-left: 40px;
+        }
+
+        #content {
+            width: 1600px;
+            height: 1080px;
+            /*background: blue;*/
+            float: right;
+            position: relative;
+            overflow: hidden;
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <script src="./lib.js"></script>
+    <script src="./GameObject.js"></script>
+    <script src="./Heart.js"></script>
+    <script src="./Box.js"></script>
+    <script src="./ScoreBox.js"></script>
+    <script src="./HeroBox.js"></script>
+    <script src="./Bullet.js"></script>
+    <script src="./Boss.js"></script>
+    <script src="./QuestBox.js"></script>
+    <script src="./Enemy.js"></script>
+    <script>
+        let wrapper;
+        let side;
+        let content;
+        let button;
+        let heart;
+        let scoreBox;
+        let score=0;
+        let bg;
+        let bgY = 1080;
+        let hero;
+        let flag2 = true;
+        let r=30;
+        let flag = false;
+        let bulletArray = [];
+        let boss;
+        let questBox;
+        let numberArray=[0,1,2,3,4,5,6,7,8,9];
+        let enemyColorArray = ["./images/pink.png", "./images/yellow.png", "./images/orange.png", "./images/green.png"];
+        let enemyArray = [];
+        let flag3=true;
+        let timeCount = 0;
+
+        function createHeart() {
+            for (let i = 0; i < 3; i++) {
+                heart = new Heart(side, "./images/heart.png", 100, 100, 40 + (i * 150), 50, 0, 0, "");
+            }
+        }
+        function showScore() {
+            scoreBox = new ScoreBox(side, 390, 200, 40, 300, 0, 0, "", score+"점");
+        }
+        function setScore(){
+            //왜 안되는거지? 간단한 논리인데.... 왜 지... 왜지.. 왜왜오애왜왜왜왜왜오애ㅗ애ㅗ애ㅗ애ㅗ
+            score=score+10;
+            scoreBox.div.innerText=score+"점";
+        }
+        function createBg() {
+            bg = document.createElement("img");
+            bg.style.width = 1600 + "px";
+            bg.style.height = 1080 + "px";
+            bg.style.backgroundImage = "url(./images/bg.png)";
+            bg.style.position = "absolute";
+            bg.style.left =0 + "px";
+            bg.style.top =0 + "px";
+            bg.style.opacity = 0.4;
+            content.appendChild(bg);
+        }
+        function BgEffect() {
+            bgY = bgY + 1;
+            bg.style.backgroundPosition = "0px " + bgY + "px";
+        }
+        function loop() {
+            //console.log(timeCount);
+            if (flag) {
+                button.disabled = true;
+                button.innerText = "press ESC";
+                timeCount++;
+                console.log(timeCount);
+                if (timeCount >= 3) {
+                    boss.tick();
+                    boss.render();
+                    hero.tick();
+                    hero.render();
+                    hero.picEffect();
+                    if (boss.y >= 30) {
+                        boss.velY = 0;
+                        hero.velX = 0;
+                        questBox.slideDown();
+                        for (let i = 0; i < enemyArray.length; i++) {
+                            enemyArray[i].tick();
+                            enemyArray[i].render();
+                            enemyArray[i].moveLeftRight();
+                            }
+                        }
+                    }
+                }
+                BgEffect();
+                for (let i = 0; i < bulletArray.length; i++) {
+                    bulletArray[i].tick();
+                    bulletArray[i].render();
+                    bulletArray[i].hitCheck();
+            }
+        }
+
+        function moveX(n) {
+            hero.velX = n;
+        }
+        function moveY(n) {
+            hero.velY = n;
+        }
+        function createHero() {
+            hero = new HeroBox(content, 200, 200, -100, 800, 25, 0, "", "");
+        }
+        function fire() {
+            let bullet = new Bullet(content, 10, 30, hero.x + 95, hero.y - 20, 0, -20, "red", "");
+            bulletArray.push(bullet);
+        }
+        function createBoss() {
+            boss = new Boss(content, "./images/ufo.png", 200, 150, 700, -120, 0, 5, "");
+        }
+        function createQuestBox() {
+            questBox = new QuestBox(content, boss.width, 80, 700, 150, 0, 0, "white", "");
+
+        }
+        function createEnemy() {
+            for (let i = 0; i < 4; i++) {
+                let enemy = new Enemy(content, enemyColorArray[i], 350, 350, 100 + (i * 300), -250, 0, 10, "", "");
+                enemyArray.push(enemy);
+            }
+        }
+        function stopGame() {
+            flag = !flag;
+            button.disabled = false;
+            button.innerText = "START";
+        }
+        function init() {
+            wrapper = document.getElementById("wrapper");
+            side = document.getElementById("side");
+            content = document.getElementById("content");
+            button = document.getElementById("button");
+
+            createHeart();
+            showScore();
+            createBg();
+            createHero();
+            createBoss();
+            createQuestBox();
+            createEnemy();
+        }
+        addEventListener("load", function () {
+            init();
+            setInterval("loop()", 100);
+            document.addEventListener("keydown", function (e) {
+                switch (e.keyCode) {
+                    case 37: moveX(-20); break;
+                    case 39: moveX(20); break;
+                    case 27: stopGame(); break;
+                    case 32: fire(); break;
+                }
+            });
+            document.addEventListener("keyup", function (e) {
+                switch (e.keyCode) {
+                    case 37: moveX(0); break;
+                    case 39: moveX(0); break;
+
+                }
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <div id="wrapper">
+        <div id="side">
+            <button onClick="flag=!flag" id="button">START</button>
+        </div>
+        <div id="content"></div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,13 @@
+    picEffect() {
+        let flag = true;
+        let r = 0;
+        if (flag) {
+            r++;
+        } else {
+            r--
+        }
+        if (r % 30 == 0) {
+            flag = !flag;
+        }
+        this.pic.style.transform = "rotate("+r+"deg)";
+    }

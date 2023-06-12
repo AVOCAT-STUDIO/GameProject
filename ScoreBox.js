@@ -1,0 +1,3 @@
+class ScoreBox extends Box{
+    
+}
